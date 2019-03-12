@@ -54,24 +54,6 @@
 # Enable programmable completion facilities (see [3])
 shopt -s progcomp
 
-# ArrContains takes two arguments, both of which are the name of arrays.
-# It creates a temporary hash from lArr1 and then checks if all elements of lArr2
-# are in the hashtable.
-#
-# Returns zero (no error) if all elements of the 2nd array are in the 1st array,
-# otherwise returns 1 (error).
-#
-# Modified from [4]
-function ArrContains() {
-  local lArr1 lArr2
-  declare -A tmp
-  eval lArr1=("\"\${$1[@]}\"")
-  eval lArr2=("\"\${$2[@]}\"")
-  for i in "${lArr1[@]}";{ [ -n "$i" ] && ((++tmp[$i]));}
-  for i in "${lArr2[@]}";{ [ -n "$i" ] && [ -z "${tmp[$i]}" ] && return 1;}
-  return 0
-}
-
 # Bash completion entry point function.
 # _complete_groovyConsole finds which commands and subcommands have been specified
 # on the command line and delegates to the appropriate function
@@ -87,13 +69,12 @@ function _complete_groovyConsole() {
 function _picocli_groovyConsole() {
   # Get completion data
   CURR_WORD=${COMP_WORDS[COMP_CWORD]}
-  PREV_WORD=${COMP_WORDS[COMP_CWORD-1]}
 
   COMMANDS=""
   FLAG_OPTS="-cp -classpath --classpath -h --help -V --version -pa --parameters -i --indy"
   ARG_OPTS="-D --define --configscript"
 
-  COMPREPLY=( $(compgen -W "${FLAG_OPTS} ${ARG_OPTS} ${COMMANDS}" -- ${CURR_WORD}) )
+  COMPREPLY=( $(compgen -W "${FLAG_OPTS} ${ARG_OPTS} ${COMMANDS}" -- "${CURR_WORD}") )
 }
 
 # Define a completion specification (a compspec) for the

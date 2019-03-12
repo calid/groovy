@@ -54,121 +54,109 @@
 # Enable programmable completion facilities (see [3])
 shopt -s progcomp
 
-# ArrContains takes two arguments, both of which are the name of arrays.
-# It creates a temporary hash from lArr1 and then checks if all elements of lArr2
-# are in the hashtable.
-#
-# Returns zero (no error) if all elements of the 2nd array are in the 1st array,
-# otherwise returns 1 (error).
-#
-# Modified from [4]
-function ArrContains() {
-  local lArr1 lArr2
-  declare -A tmp
-  eval lArr1=("\"\${$1[@]}\"")
-  eval lArr2=("\"\${$2[@]}\"")
-  for i in "${lArr1[@]}";{ [ -n "$i" ] && ((++tmp[$i]));}
-  for i in "${lArr2[@]}";{ [ -n "$i" ] && [ -z "${tmp[$i]}" ] && return 1;}
-  return 0
-}
-
 # Bash completion entry point function.
 # _complete_grape finds which commands and subcommands have been specified
 # on the command line and delegates to the appropriate function
 # to generate possible options and subcommands for the last specified subcommand.
 function _complete_grape() {
-  CMDS0=(install)
-  CMDS1=(uninstall)
-  CMDS2=(list)
-  CMDS3=(resolve)
-  CMDS4=(help)
+  local cur prev
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
 
-  ArrContains COMP_WORDS CMDS4 && { _picocli_grape_help; return $?; }
-  ArrContains COMP_WORDS CMDS3 && { _picocli_grape_resolve; return $?; }
-  ArrContains COMP_WORDS CMDS2 && { _picocli_grape_list; return $?; }
-  ArrContains COMP_WORDS CMDS1 && { _picocli_grape_uninstall; return $?; }
-  ArrContains COMP_WORDS CMDS0 && { _picocli_grape_install; return $?; }
 
+  case "$prev" in
+      install)
+          _picocli_grape_install "$cur"
+          return $?
+          ;;
+      uninstall)
+          _picocli_grape_uninstall "$cur"
+          return $?
+          ;;
+      list)
+          _picocli_grape_list "$cur"
+          return $?
+          ;;
+      resolve)
+          _picocli_grape_resolve "$cur"
+          return $?
+          ;;
+      help)
+          _picocli_grape_help "$cur"
+          return $?
+          ;;
+      *)
+          _picocli_grape "$cur"
+          return $?
+          ;;
+  esac
   # No subcommands were specified; generate completions for the top-level command.
-  _picocli_grape; return $?;
 }
 
 # Generates completions for the options and subcommands of the `grape` command.
 function _picocli_grape() {
   # Get completion data
-  CURR_WORD=${COMP_WORDS[COMP_CWORD]}
-  PREV_WORD=${COMP_WORDS[COMP_CWORD-1]}
+  local commands="install uninstall list resolve help"
+  local flag_opts="-q --quiet -w --warn -i --info -V --verbose -d --debug -h --help -v --version"
+  local arg_opts="-D --define -r --resolver"
 
-  COMMANDS="install uninstall list resolve help"
-  FLAG_OPTS="-q --quiet -w --warn -i --info -V --verbose -d --debug -h --help -v --version"
-  ARG_OPTS="-D --define -r --resolver"
-
-  COMPREPLY=( $(compgen -W "${FLAG_OPTS} ${ARG_OPTS} ${COMMANDS}" -- ${CURR_WORD}) )
+  COMPREPLY=( $(compgen -W "${flag_opts} ${arg_opts} ${commands}" -- "$1") )
 }
 
 # Generates completions for the options and subcommands of the `install` subcommand.
 function _picocli_grape_install() {
   # Get completion data
-  CURR_WORD=${COMP_WORDS[COMP_CWORD]}
-  PREV_WORD=${COMP_WORDS[COMP_CWORD-1]}
 
-  COMMANDS=""
-  FLAG_OPTS="-h --help -v --version"
-  ARG_OPTS=""
+  local commands=""
+  local flag_opts="-h --help -v --version"
+  local arg_opts=""
 
-  COMPREPLY=( $(compgen -W "${FLAG_OPTS} ${ARG_OPTS} ${COMMANDS}" -- ${CURR_WORD}) )
+  COMPREPLY=( $(compgen -W "${flag_opts} ${arg_opts} ${commands}" -- "$1") )
 }
 
 # Generates completions for the options and subcommands of the `uninstall` subcommand.
 function _picocli_grape_uninstall() {
   # Get completion data
-  CURR_WORD=${COMP_WORDS[COMP_CWORD]}
-  PREV_WORD=${COMP_WORDS[COMP_CWORD-1]}
 
-  COMMANDS=""
-  FLAG_OPTS="-h --help -v --version"
-  ARG_OPTS=""
+  local commands=""
+  local flag_opts="-h --help -v --version"
+  local arg_opts=""
 
-  COMPREPLY=( $(compgen -W "${FLAG_OPTS} ${ARG_OPTS} ${COMMANDS}" -- ${CURR_WORD}) )
+  COMPREPLY=( $(compgen -W "${flag_opts} ${arg_opts} ${commands}" -- "$1") )
 }
 
 # Generates completions for the options and subcommands of the `list` subcommand.
 function _picocli_grape_list() {
   # Get completion data
-  CURR_WORD=${COMP_WORDS[COMP_CWORD]}
-  PREV_WORD=${COMP_WORDS[COMP_CWORD-1]}
 
-  COMMANDS=""
-  FLAG_OPTS="-h --help -v --version"
-  ARG_OPTS=""
+  local commands=""
+  local flag_opts="-h --help -v --version"
+  local arg_opts=""
 
-  COMPREPLY=( $(compgen -W "${FLAG_OPTS} ${ARG_OPTS} ${COMMANDS}" -- ${CURR_WORD}) )
+  COMPREPLY=( $(compgen -W "${flag_opts} ${arg_opts} ${commands}" -- "$1") )
 }
 
 # Generates completions for the options and subcommands of the `resolve` subcommand.
 function _picocli_grape_resolve() {
   # Get completion data
-  CURR_WORD=${COMP_WORDS[COMP_CWORD]}
-  PREV_WORD=${COMP_WORDS[COMP_CWORD-1]}
 
-  COMMANDS=""
-  FLAG_OPTS="-a --ant -d --dos -s --shell -i --ivy -h --help -v --version"
-  ARG_OPTS=""
+  local commands=""
+  local flag_opts="-a --ant -d --dos -s --shell -i --ivy -h --help -v --version"
+  local arg_opts=""
 
-  COMPREPLY=( $(compgen -W "${FLAG_OPTS} ${ARG_OPTS} ${COMMANDS}" -- ${CURR_WORD}) )
+  COMPREPLY=( $(compgen -W "${flag_opts} ${arg_opts} ${commands}" -- "$1") )
 }
 
 # Generates completions for the options and subcommands of the `help` subcommand.
 function _picocli_grape_help() {
   # Get completion data
-  CURR_WORD=${COMP_WORDS[COMP_CWORD]}
-  PREV_WORD=${COMP_WORDS[COMP_CWORD-1]}
 
-  COMMANDS=""
-  FLAG_OPTS="-h --help"
-  ARG_OPTS=""
+  local commands=""
+  local flag_opts="-h --help"
+  local arg_opts=""
 
-  COMPREPLY=( $(compgen -W "${FLAG_OPTS} ${ARG_OPTS} ${COMMANDS}" -- ${CURR_WORD}) )
+  COMPREPLY=( $(compgen -W "${flag_opts} ${arg_opts} ${commands}" -- "$1") )
 }
 
 # Define a completion specification (a compspec) for the
